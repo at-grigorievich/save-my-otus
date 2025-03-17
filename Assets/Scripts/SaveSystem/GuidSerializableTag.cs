@@ -2,7 +2,7 @@
 
 namespace SaveSystem
 {
-    public sealed class SerializableTag: MonoBehaviour, ISerializableKey
+    public sealed class GuidSerializableTag: MonoBehaviour, ISerializableKey
     {
         [SerializeField] private GuidSerializableKey guidKey;
         

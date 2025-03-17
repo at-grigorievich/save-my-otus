@@ -40,6 +40,7 @@ public sealed class GameSceneScope: LifetimeScope
         builder.Register<SerializableRepository>(Lifetime.Singleton).AsImplementedInterfaces();
 
         builder.Register<UnitsSaveLoader>(Lifetime.Singleton).As<ISaveLoader>();
+        builder.Register<ResourceSaveLoader>(Lifetime.Singleton).As<ISaveLoader>();
         
         builder.Register<ISaveLoaderFacade, SaveLoadersFacade>(Lifetime.Singleton);
         
