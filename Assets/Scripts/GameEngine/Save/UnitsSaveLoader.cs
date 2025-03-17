@@ -7,13 +7,21 @@ namespace GameEngine.Save
 {
     public struct UnitSerializableData: ISerializable
     {
+        public string Type;
+        
         public Vector3 Position;
         public Vector3 Rotation;
-
+        
+        public int HitPoints;
+        
         public UnitSerializableData(Unit unit)
         {
+            Type = unit.Type;
+            
             Position = unit.Position;
             Rotation = unit.Rotation;
+
+            HitPoints = unit.HitPoints;
         }
         
         public string Serialize()
@@ -75,8 +83,7 @@ namespace GameEngine.Save
 
                 if (_serializableRepository.TryGetData(key, out UnitSerializableData data) == true)
                 {
-                    unit.transform.position = data.Position;
-                    unit.transform.rotation = Quaternion.Euler(data.Rotation);
+                    unit.Setup(data);
                 }
             }
             

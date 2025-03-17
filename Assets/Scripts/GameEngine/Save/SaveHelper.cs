@@ -7,7 +7,8 @@ namespace GameEngine.Save
 {
     public sealed class SaveHelper : MonoBehaviour
     {
-        [Inject] private ISaveLoader _saveLoader;
+        [Inject] private ISaveLoaderFacade _saveLoader;
+        [Inject] private ISerializeRepositoryClearable _serializeRepositoryClearing;
 
         [Button]
         public void Save()
@@ -22,6 +23,15 @@ namespace GameEngine.Save
         {
 #if UNITY_EDITOR
             _saveLoader.Load();
+#endif
+        }
+
+        [Button]
+        public void Clear()
+        {
+#if UNITY_EDITOR
+                _serializeRepositoryClearing.Clear();
+                Debug.Log("serialize repository cleared");
 #endif
         }
     }

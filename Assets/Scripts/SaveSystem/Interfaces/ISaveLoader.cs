@@ -5,4 +5,6 @@
         void Save();
         void Load();
     }
+    
+    public interface ISaveLoaderFacade: ISaveLoader {}
 }

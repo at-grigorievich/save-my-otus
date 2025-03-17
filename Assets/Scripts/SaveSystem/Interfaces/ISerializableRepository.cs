@@ -8,4 +8,9 @@
         void SerializeState();
         void DeserializeState();
     }
+
+    public interface ISerializeRepositoryClearable
+    {
+        void Clear();
+    }
 }

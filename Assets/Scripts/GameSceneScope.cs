@@ -37,9 +37,12 @@ public sealed class GameSceneScope: LifetimeScope
         unitManagerFactory.Create(builder);
         resourceServiceFactory.Create(builder);
 
-        builder.Register<ISerializableRepository, SerializableRepository>(Lifetime.Singleton);
-        builder.Register<ISaveLoader, UnitsSaveLoader>(Lifetime.Singleton);
+        builder.Register<SerializableRepository>(Lifetime.Singleton).AsImplementedInterfaces();
 
+        builder.Register<UnitsSaveLoader>(Lifetime.Singleton).As<ISaveLoader>();
+        
+        builder.Register<ISaveLoaderFacade, SaveLoadersFacade>(Lifetime.Singleton);
+        
         builder.RegisterEntryPoint<GameSceneEntryPoint>();
     }
 }
