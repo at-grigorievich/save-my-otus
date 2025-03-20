@@ -60,16 +60,15 @@ namespace SaveSystem
         public void SerializeState()
         {
             string stateJson = JsonConvert.SerializeObject(_serializableState);
-            PlayerPrefs.SetString(STATE_PATH, stateJson);
+            SecurePlayerPrefsAes.Save(STATE_PATH, stateJson);
         }
 
         public void DeserializeState()
         {
             if(_serializableState.Count != 0) return;
             
-            if (PlayerPrefs.HasKey(STATE_PATH) == true)
+            if (SecurePlayerPrefsAes.TryRead(STATE_PATH,out string data) == true)
             {
-                string data = PlayerPrefs.GetString(STATE_PATH);
                 _serializableState = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
             }
         }
