@@ -2,12 +2,12 @@
 
 namespace SaveSystem
 {
-    public class SaveLoadersFacade: ISaveLoaderFacade
+    public class SaveLoadersService: ISaveService
     {
         private readonly IEnumerable<ISaveLoader> _saveLoaders;
         private readonly ISerializableRepository _serializableRepository;
 
-        public SaveLoadersFacade(ISerializableRepository repository, IEnumerable<ISaveLoader> saveLoaders)
+        public SaveLoadersService(ISerializableRepository repository, IEnumerable<ISaveLoader> saveLoaders)
         {
             _saveLoaders = saveLoaders;
             _serializableRepository = repository;

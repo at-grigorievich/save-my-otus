@@ -7,21 +7,25 @@ using VContainer;
 using VContainer.Unity;
 
 [Serializable]
-public sealed class UnitManagerFactory
+public sealed class UnitManagerRegister
 {
     [SerializeField] private Transform unitContainer;
-
-    public void Create(IContainerBuilder builder)
+    [SerializeField] private UnitLibrary unitLibrary;
+    
+    public void Register(IContainerBuilder builder)
     {
         builder.Register<UnitManager>(Lifetime.Singleton)
-            .WithParameter<Transform>(unitContainer);
+            .WithParameter(unitContainer);
+
+        builder.Register<UnitPrefabAccessor>(Lifetime.Singleton)
+            .WithParameter(unitLibrary);
     }
 }
 
 [Serializable]
-public sealed class ResourceServiceFactory
+public sealed class ResourceServiceRegister
 {
-    public void Create(IContainerBuilder builder)
+    public void Register(IContainerBuilder builder)
     {
         builder.Register<ResourceService>(Lifetime.Singleton);
     }
@@ -29,20 +33,20 @@ public sealed class ResourceServiceFactory
 
 public sealed class GameSceneScope: LifetimeScope
 {
-    [SerializeField] private UnitManagerFactory unitManagerFactory;
-    [SerializeField] private ResourceServiceFactory resourceServiceFactory;
+    [SerializeField] private UnitManagerRegister unitManagerRegister;
+    [SerializeField] private ResourceServiceRegister resourceServiceRegister;
 
     protected override void Configure(IContainerBuilder builder)
     {
-        unitManagerFactory.Create(builder);
-        resourceServiceFactory.Create(builder);
+        unitManagerRegister.Register(builder);
+        resourceServiceRegister.Register(builder);
 
         builder.Register<SerializableRepository>(Lifetime.Singleton).AsImplementedInterfaces();
 
         builder.Register<UnitsSaveLoader>(Lifetime.Singleton).As<ISaveLoader>();
         builder.Register<ResourceSaveLoader>(Lifetime.Singleton).As<ISaveLoader>();
         
-        builder.Register<ISaveLoaderFacade, SaveLoadersFacade>(Lifetime.Singleton);
+        builder.Register<ISaveService, SaveLoadersService>(Lifetime.Singleton);
         
         builder.RegisterEntryPoint<GameSceneEntryPoint>();
     }

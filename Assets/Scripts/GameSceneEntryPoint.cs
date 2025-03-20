@@ -8,15 +8,15 @@ public sealed class GameSceneEntryPoint : IStartable, ITickable
     private readonly UnitManager _unitManager;
     private readonly ResourceService _resourceService;
     
-    private readonly ISaveLoaderFacade _saveLoaderFacade;
+    private readonly ISaveService _saveService;
 
     public GameSceneEntryPoint(UnitManager unitManager, ResourceService resourceService,
-        ISaveLoaderFacade saveLoaderFacade)
+        ISaveService saveService)
     {
         _unitManager = unitManager;
         _resourceService = resourceService;
         
-        _saveLoaderFacade = saveLoaderFacade;
+        _saveService = saveService;
     }
     
     public void Start()
@@ -24,12 +24,11 @@ public sealed class GameSceneEntryPoint : IStartable, ITickable
         _unitManager.SetupUnits(GameObject.FindObjectsOfType<Unit>());
         _resourceService.SetResources(GameObject.FindObjectsOfType<Resource>());
         
-        _saveLoaderFacade.Load();
+        _saveService.Load();
     }
 
     public void Tick()
     {
         //for perfect future...
     }
-    
 }

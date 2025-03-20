@@ -1,55 +1,66 @@
-﻿using SaveSystem;
+﻿using System.Collections.Generic;
+using System.Linq;
+using SaveSystem;
 using UnityEngine;
 
 namespace GameEngine.Save
 {
-    public struct ResourceSerializableData: ISerializable
+    public struct ResourceData
     {
+        public string Id;
         public int Amount;
-        
-        public ResourceSerializableData(Resource resource)
+
+        public ResourceData(Resource resource)
         {
             Amount = resource.Amount;
-        }
-        
-        public string Serialize()
-        {
-            return JsonUtility.ToJson(this);
+            Id = resource.ID;
         }
     }
-    
-    public class ResourceSaveLoader: ISaveLoader
+
+    public class ResourceSaveLoader : SaveLoader<ResourceService, ResourceData[]>
     {
-        private readonly ResourceService _resourceService;
-        private readonly ISerializableRepository _serializableRepository;
+        protected override string DATA_KEY => "resources-data";
 
-        public ResourceSaveLoader(ResourceService resourceService, ISerializableRepository serializableRepository)
+        public ResourceSaveLoader(ResourceService resourceService, ISerializableRepository serializableRepository):
+            base(serializableRepository, resourceService)
         {
-            _resourceService = resourceService;
-            _serializableRepository = serializableRepository;
         }
-        
-        public void Save()
+
+        protected override ResourceData[] ConvertToData()
         {
-            foreach (var resource in _resourceService.GetResources())
+            Resource[] resources = _dataService.GetResources().ToArray();
+            ResourceData[] resourcesData = new ResourceData[resources.Length];
+
+            for (int i = 0; i < resources.Length; i++)
             {
-                ResourceSerializableData data = new ResourceSerializableData(resource);
-                _serializableRepository.SetData(StringSerializableKey.Create(resource.ID), data);
+                resourcesData[i] = new ResourceData(resources[i]);
             }
-            Debug.Log("resources serialized");
+
+            return resourcesData;
         }
 
-        public void Load()
+        protected override void SetupData(ResourceData[] resourcesSet)
         {
-            foreach (var resource in _resourceService.GetResources())
+            HashSet<Resource> existingResources = _dataService.GetResources().ToHashSet();
+
+            for (var i = 0; i < resourcesSet.Length; i++)
             {
-                if (_serializableRepository.TryGetData(StringSerializableKey.Create(resource.ID), 
-                        out ResourceSerializableData data) == true)
+                string requiredId = resourcesSet[i].Id;
+
+                Resource selectedResource = existingResources.FirstOrDefault(u => u.ID == requiredId);
+
+                if (selectedResource == null)
                 {
-                    resource.Setup(data);
+                    //throw new NullReferenceException("No resource with ID: " + requiredId);
+                    Debug.LogWarning("No available resource to load with ID: " + requiredId);
                 }
+                else
+                {
+                    existingResources.Remove(selectedResource);
+                }
+
+                selectedResource.Setup(resourcesSet[i]);
             }
-            Debug.Log("resources deserialized");
         }
     }
 }

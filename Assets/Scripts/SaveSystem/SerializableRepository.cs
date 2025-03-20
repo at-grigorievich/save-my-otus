@@ -4,25 +4,28 @@ using UnityEngine;
 
 namespace SaveSystem
 {
-    public class SerializableRepository: ISerializableRepository, ISerializeRepositoryClearable
+    public class SerializableRepository: ISerializableRepository, IClearable
     {
         private const string STATE_PATH = "state-path";
         
         private Dictionary<string, string> _serializableState = new();
         
-        public void SetData(ISerializableKey key, ISerializable data)
+        public void SetData(string key, object data)
         {
-            string serializedData = data.Serialize();
-            
-            if (_serializableState.TryAdd(key.Value, serializedData) == false)
+            string serializedData = JsonConvert.SerializeObject(data, new JsonSerializerSettings
             {
-                _serializableState[key.Value] = serializedData;
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+            
+            if (_serializableState.TryAdd(key, serializedData) == false)
+            {
+                _serializableState[key] = serializedData;
             }
         }
 
-        public bool TryGetData<T>(ISerializableKey key, out T result) where T : ISerializable, new()
+        public bool TryGetData<T>(string key, out T result)
         {
-            if(_serializableState.TryGetValue(key.Value, out string data) == true)
+            if(_serializableState.TryGetValue(key, out string data) == true)
             {
                 result = JsonConvert.DeserializeObject<T>(data);
                 return true;
@@ -32,6 +35,27 @@ namespace SaveSystem
             return false;
         }
 
+        public void RemoveData(string key)
+        {
+            if(_serializableState.ContainsKey(key) == false) return;
+            _serializableState.Remove(key);
+        }
+
+        public bool TryGetAllDataByTag<T>(string tag, out IEnumerable<KeyValuePair<string,T>> result)
+        {
+            List<KeyValuePair<string, T>> data = new();
+
+            foreach (var e in _serializableState)
+            {
+                if(e.Key.Contains(tag) == true)
+                    data.Add(new KeyValuePair<string, T>(e.Key, JsonConvert.DeserializeObject<T>(e.Value)));
+            }
+
+            result = data;
+            
+            return data.Count > 0;
+        }
+        
 
         public void SerializeState()
         {
@@ -55,6 +79,7 @@ namespace SaveSystem
             if (PlayerPrefs.HasKey(STATE_PATH) == true)
             {
                 PlayerPrefs.DeleteKey(STATE_PATH);
+                _serializableState.Clear();
             }
         }
     }

@@ -6,5 +6,5 @@
         void Load();
     }
     
-    public interface ISaveLoaderFacade: ISaveLoader {}
+    public interface ISaveService: ISaveLoader {}
 }

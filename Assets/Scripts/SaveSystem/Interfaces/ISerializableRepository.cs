@@ -1,15 +1,21 @@
-﻿namespace SaveSystem
+﻿using System.Collections.Generic;
+
+namespace SaveSystem
 {
     public interface ISerializableRepository
     {
-        void SetData(ISerializableKey key, ISerializable data);
-        bool TryGetData<T>(ISerializableKey key, out T result) where T : ISerializable, new();
+        void SetData(string key, object data);
+        bool TryGetData<T>(string key, out T result);
 
+        void RemoveData(string key);
+        
+        bool TryGetAllDataByTag<T>(string tag, out IEnumerable<KeyValuePair<string,T>> result);
+        
         void SerializeState();
         void DeserializeState();
     }
 
-    public interface ISerializeRepositoryClearable
+    public interface IClearable
     {
         void Clear();
     }
